@@ -30,4 +30,8 @@ public class AccountUtils {
     public static final String ACCOUNT_EXISTS_MESSAGE="This user already has an account";
     public static final String ACCOUNT_CREATED_CODE="002";
     public static final String ACCOUNT_CREATED_MESSAGE="account created!!";
+    public static final String ACCOUNT_NOT_EXISTS_CODE="003";
+    public static final String ACCOUNT_NOT_EXISTS_MESSAGE="account doesnt exists";
+    public static final String ACCOUNT_FOUND_CODE="004";
+    public static final String ACCOUNT_FOUND_MESSAGE="account found!";
 }
