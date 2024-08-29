@@ -26,6 +26,19 @@ public class AccountUtils {
         return accountNumber;
     }
 
+    public static String generateRandomString(){
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        Random random = new Random();
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < 5; i++) {
+            int index = random.nextInt(characters.length());
+            result.append(characters.charAt(index));
+        }
+
+        return result.toString();
+    }
+
     public static final String ACCOUNT_EXISTS_CODE="001";
     public static final String ACCOUNT_EXISTS_MESSAGE="This user already has an account";
     public static final String ACCOUNT_CREATED_CODE="002";
