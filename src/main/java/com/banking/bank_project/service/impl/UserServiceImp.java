@@ -3,19 +3,26 @@ package com.banking.bank_project.service.impl;
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.banking.bank_project.config.JwtTokenProvider;
 import com.banking.bank_project.dto.AccountInfo;
 import com.banking.bank_project.dto.BankResponse;
 import com.banking.bank_project.dto.CreditDebitRequest;
 import com.banking.bank_project.dto.EmailDetails;
 import com.banking.bank_project.dto.EnquiryRequest;
+import com.banking.bank_project.dto.LoginDto;
 import com.banking.bank_project.dto.TransactionDto;
 import com.banking.bank_project.dto.TransferRequest;
 import com.banking.bank_project.dto.UserRequest;
+import com.banking.bank_project.entity.Role;
 import com.banking.bank_project.entity.User;
 import com.banking.bank_project.repository.UserRepository;
 import com.banking.bank_project.utils.AccountUtils;
+import com.banking.bank_project.utils.HashPassword;
 
 @Service
 public class UserServiceImp implements UserService{
@@ -28,6 +35,12 @@ public class UserServiceImp implements UserService{
 
     @Autowired
     TransactionService transactionService;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -53,8 +66,10 @@ public class UserServiceImp implements UserService{
         .accountNumber(AccountUtils.generateAccountNumber())
         .accountBalance(BigDecimal.ZERO)
         .email(userRequest.getEmail())
+        .password(HashPassword.hashPassword(userRequest.getPassword()))
         .phoneNumber(userRequest.getPhoneNumber())
         .status("ACTIVE")
+        .role(Role.ROLE_USER)
         .build();
 
         User savedUser=userRepository.save(newUser);
@@ -241,6 +256,24 @@ public class UserServiceImp implements UserService{
        .responseCode(AccountUtils.ACCOUNT_EXISTS_CODE)
        .responseMessage("Transfered Successfully")
        .build();
+    }
+
+    public BankResponse login(LoginDto loginDto){
+        Authentication authentication=null;
+        authentication=authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword())
+        );
+
+        EmailDetails loginAlert=EmailDetails.builder()
+                                            .subject("logged in")
+                                            .recipient(loginDto.getEmail())
+                                            .messageBody("Logged in successfully, if not you then change password or report!")
+                                            .build();
+        emailService.sendEmail(loginAlert);
+        return BankResponse.builder()
+                            .responseCode("001")
+                            .responseMessage(jwtTokenProvider.generateToken(authentication))
+                            .build();
     }
     
     // balance enquiry , name enquiry , credit , debit , transfer
