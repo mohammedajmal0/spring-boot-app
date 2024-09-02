@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public BankResponse logiBankResponse(@RequestBody LoginDto loginDto) {
+    public BankResponse login(@RequestBody LoginDto loginDto) {
        return userService.login(loginDto);
     }
     
